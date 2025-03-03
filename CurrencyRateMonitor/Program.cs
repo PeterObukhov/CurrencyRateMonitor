@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using CurrencyRateMonitor.Database;
+using System.Text;
 
 namespace CurrencyRateMonitor
 {
@@ -8,7 +9,11 @@ namespace CurrencyRateMonitor
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var service = new CurrencyService();
-            var check = await service.GetLastMonthRates();
+            DbHandler.SaveToDb(await service.GetLastMonthRatesAsync());
+            
+            await Task.Run(() => CurrencyScheduler.Start());
+            
+            Console.WriteLine("Finished");
             Console.ReadKey();
         }
     }

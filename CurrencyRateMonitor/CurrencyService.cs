@@ -1,12 +1,10 @@
 ﻿using CurrencyRateMonitor.Models;
 using System.Globalization;
-using System.Xml;
 using System.Xml.Linq;
-using System.Xml.Serialization;
 
 namespace CurrencyRateMonitor
 {
-    public class CurrencyService
+    public class CurrencyService : ICurrencyService
     {
         private const string baseUrl = "http://www.cbr.ru/scripts/";
         private HttpClient client { get; set; }
@@ -22,7 +20,7 @@ namespace CurrencyRateMonitor
             client = new HttpClient();
         }
 
-        public async Task<IEnumerable<CurrencyRate>> GetCurrentRates()
+        public async Task<IEnumerable<CurrencyRate>> GetCurrentRatesAsync()
         {
             List<CurrencyRate> currencyRates = new List<CurrencyRate>();
             try
@@ -51,7 +49,7 @@ namespace CurrencyRateMonitor
             }
         }
 
-        public async Task<IEnumerable<CurrencyRate>> GetLastMonthRates()
+        public async Task<IEnumerable<CurrencyRate>> GetLastMonthRatesAsync()
         {
             var currentDate = DateTime.Now.Date;
             var previousDate = currentDate.AddMonths(-1);
@@ -89,7 +87,7 @@ namespace CurrencyRateMonitor
             List<CurrencyCode> currencyCodes = new List<CurrencyCode>();
             try
             {
-                var response = await client.GetAsync($"{baseUrl}XM123L_val.asp?d=0");
+                var response = await client.GetAsync($"{baseUrl}XML_val.asp?d=0");
                 XDocument xDoc = XDocument.Load(response.Content.ReadAsStream());
                 foreach (var item in xDoc.Element("Valuta").Elements())
                 {
