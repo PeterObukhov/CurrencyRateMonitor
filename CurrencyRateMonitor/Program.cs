@@ -8,7 +8,8 @@ namespace CurrencyRateMonitor
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var service = new CurrencyService();
-            await service.GetCurrentRates();
+            var check = await service.GetLastMonthRates();
+            Console.ReadKey();
         }
     }
 }
