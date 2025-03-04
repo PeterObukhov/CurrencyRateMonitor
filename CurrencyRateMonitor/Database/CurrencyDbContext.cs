@@ -1,6 +1,6 @@
-﻿using CurrencyRateMonitor.Models;
+﻿using CurrencyRateMonitor.Handlers;
+using CurrencyRateMonitor.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace CurrencyRateMonitor.Database
 {
@@ -10,19 +10,18 @@ namespace CurrencyRateMonitor.Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("config.json");
-
-            IConfiguration config = builder.Build();
-
-            var connectionString = $"Host={config.GetSection("Host").Value};" +
-                $"Port={config.GetSection("Port").Value};" +
-                $"Database={config.GetSection("Database").Value};" +
-                $"Username={config.GetSection("Username").Value};" +
-                $"Password={config.GetSection("Password").Value}";
+            var connectionString = $"Host={ConfigurationHandler.Сonfiguration.GetSection("Host").Value};" +
+                $"Port={ConfigurationHandler.Сonfiguration.GetSection("Port").Value};" +
+                $"Database={ConfigurationHandler.Сonfiguration.GetSection("Database").Value};" +
+                $"Username={ConfigurationHandler.Сonfiguration.GetSection("Username").Value};" +
+                $"Password={ConfigurationHandler.Сonfiguration.GetSection("Password").Value}";
 
             optionsBuilder.UseNpgsql(connectionString);
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<CurrencyRate>().HasIndex(rate => new { rate.CurrencyId, rate.Date }).IsUnique();
         }
     }
 }

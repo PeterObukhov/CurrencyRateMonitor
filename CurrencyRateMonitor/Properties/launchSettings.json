@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "CurrencyRateMonitor": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

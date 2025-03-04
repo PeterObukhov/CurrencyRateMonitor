@@ -1,7 +1,8 @@
-﻿using CurrencyRateMonitor.Database;
+﻿using CurrencyRateMonitor.Handlers;
+using CurrencyRateMonitor.Service;
 using Quartz;
 
-namespace CurrencyRateMonitor
+namespace CurrencyRateMonitor.Scheduler
 {
     internal class CurrencySaver : IJob
     {

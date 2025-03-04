@@ -2,9 +2,9 @@
 using System.Globalization;
 using System.Xml.Linq;
 
-namespace CurrencyRateMonitor
+namespace CurrencyRateMonitor.Service
 {
-    public class CurrencyService : ICurrencyService
+    public class CurrencyService
     {
         private const string baseUrl = "http://www.cbr.ru/scripts/";
         private HttpClient client { get; set; }
@@ -15,8 +15,8 @@ namespace CurrencyRateMonitor
             public string Name;
         }
 
-        public CurrencyService() 
-        { 
+        public CurrencyService()
+        {
             client = new HttpClient();
         }
 
@@ -58,7 +58,9 @@ namespace CurrencyRateMonitor
             {
                 foreach (var code in await GetCurrencyCodes())
                 {
-                    var response = await client.GetAsync($"{baseUrl}XML_dynamic.asp?date_req1={previousDate}&date_req2={currentDate}&VAL_NM_RQ={code.Code}");
+                    var previousDateStr = previousDate.ToString("dd.MM.yyyy");
+                    var currentDateStr = currentDate.ToString("dd.MM.yyyy");
+                    var response = await client.GetAsync($"{baseUrl}XML_dynamic.asp?date_req1={previousDateStr}&date_req2={currentDateStr}&VAL_NM_RQ={code.Code}");
                     XDocument xDoc = XDocument.Load(response.Content.ReadAsStream());
                     foreach (var item in xDoc.Element("ValCurs").Elements())
                     {
@@ -66,7 +68,7 @@ namespace CurrencyRateMonitor
                         {
                             CurrencyId = code.Code,
                             CurrencyName = code.Name,
-                            Date = DateOnly.Parse(item.Attribute("Date").Value),
+                            Date = DateOnly.Parse(item.Attribute("Date").Value, CultureInfo.CreateSpecificCulture("ru-RU")),
                             Nominal = int.Parse(item.Element("Nominal").Value),
                             Value = decimal.Parse(item.Element("Value").Value, CultureInfo.CreateSpecificCulture("ru-RU")),
                             VunitRate = decimal.Parse(item.Element("VunitRate").Value, CultureInfo.CreateSpecificCulture("ru-RU"))
@@ -75,7 +77,7 @@ namespace CurrencyRateMonitor
                 }
                 return currencyRates;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 return currencyRates;

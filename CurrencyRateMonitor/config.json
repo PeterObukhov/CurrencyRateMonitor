@@ -1,7 +1,8 @@
 ﻿{
-  "Host": "localhost",
+  "Host": "currencyratemonitor.db",
   "Port": "5432",
   "Database": "currencyDb",
-  "Username": "user",
-  "Password":  "pass"
+  "Username": "postgres",
+  "Password": "123456",
+  "CronTime": "12:00"
 }
