@@ -2,6 +2,7 @@
 
 ### Запуск:
 docker compose build currencyratemonitor
+
 docker compose run currencyratemonitor
 
 ### Функционал:
