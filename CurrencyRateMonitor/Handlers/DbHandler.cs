@@ -1,10 +1,7 @@
 ﻿using CurrencyRateMonitor.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.SqlClient;
-using System.Data;
-using System.Reflection.Metadata;
 using Npgsql;
 using CurrencyRateMonitor.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace CurrencyRateMonitor.Handlers
 {
@@ -12,9 +9,16 @@ namespace CurrencyRateMonitor.Handlers
     {
         public static void ApplyMigration()
         {
-            using (CurrencyDbContext db = new CurrencyDbContext())
+            try
             {
-                db.Database.Migrate();
+                using (CurrencyDbContext db = new CurrencyDbContext())
+                {
+                    db.Database.Migrate();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
         public static void SaveToDb(IEnumerable<CurrencyRate> currencyRates)
@@ -35,7 +39,7 @@ namespace CurrencyRateMonitor.Handlers
                 }
                 else
                 {
-                    Console.WriteLine(ex.InnerException.Message);
+                    Console.WriteLine(ex.Message);
                 }
             }
         }

@@ -4,10 +4,10 @@ using System.Xml.Linq;
 
 namespace CurrencyRateMonitor.Service
 {
-    public class CurrencyService
+    public static class CurrencyService
     {
         private const string baseUrl = "http://www.cbr.ru/scripts/";
-        private HttpClient client { get; set; }
+        private static HttpClient client { get; set; }
 
         private struct CurrencyCode
         {
@@ -15,12 +15,12 @@ namespace CurrencyRateMonitor.Service
             public string Name;
         }
 
-        public CurrencyService()
+        public static void InitializeService()
         {
             client = new HttpClient();
         }
 
-        public async Task<IEnumerable<CurrencyRate>> GetCurrentRatesAsync()
+        public static async Task<IEnumerable<CurrencyRate>> GetCurrentRatesAsync()
         {
             List<CurrencyRate> currencyRates = new List<CurrencyRate>();
             try
@@ -49,7 +49,7 @@ namespace CurrencyRateMonitor.Service
             }
         }
 
-        public async Task<IEnumerable<CurrencyRate>> GetLastMonthRatesAsync()
+        public static async Task<IEnumerable<CurrencyRate>> GetLastMonthRatesAsync()
         {
             var currentDate = DateTime.Now.Date;
             var previousDate = currentDate.AddMonths(-1);
@@ -84,7 +84,7 @@ namespace CurrencyRateMonitor.Service
             }
         }
 
-        private async Task<IEnumerable<CurrencyCode>> GetCurrencyCodes()
+        private static async Task<IEnumerable<CurrencyCode>> GetCurrencyCodes()
         {
             List<CurrencyCode> currencyCodes = new List<CurrencyCode>();
             try

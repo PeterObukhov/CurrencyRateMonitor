@@ -8,8 +8,7 @@ namespace CurrencyRateMonitor.Scheduler
     {
         public async Task Execute(IJobExecutionContext context)
         {
-            var currencyService = new CurrencyService();
-            var currencies = await currencyService.GetCurrentRatesAsync();
+            var currencies = await CurrencyService.GetCurrentRatesAsync();
             DbHandler.SaveToDb(currencies);
         }
     }

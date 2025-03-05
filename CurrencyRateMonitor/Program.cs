@@ -14,24 +14,21 @@ namespace CurrencyRateMonitor
 
             DbHandler.ApplyMigration();
 
-            await Task.Run(() => CurrencyScheduler.Start());
+            CurrencyService.InitializeService();
 
-            var service = new CurrencyService();
+            await Task.Run(CurrencyScheduler.Start);
 
-            do
+            Console.WriteLine("Сервис фоновой выгрузки запущен и будет срабатывать каждый день в " + ConfigurationHandler.Сonfiguration.GetSection("CronTime").Value);
+
+            Console.WriteLine("Загрузить данные за последний месяц? (Y/N)");
+            if (Console.ReadLine().ToLower() == "y")
             {
-                Console.WriteLine("Загрузить данные за последний месяц? (Y/N)");
-                if (Console.ReadLine().ToLower() == "y")
-                {
-                    DbHandler.SaveToDb(await service.GetLastMonthRatesAsync());
-                    Console.WriteLine("Сохранение успешно");
-                }
+                DbHandler.SaveToDb(await CurrencyService.GetLastMonthRatesAsync());
+                Console.WriteLine("Сохранение успешно");
+            }
 
-                Console.WriteLine("Нажмите ESC для выхода или любую другую клавишу для повтора");
-            } while (Console.ReadKey().Key != ConsoleKey.Escape);
-
-            Console.WriteLine("0Выход из загрузки за месяц, ежедневная выгрузка работает");
-            Console.ReadKey();
+            Console.WriteLine("Нажмите клавишу Enter для завершения работы");
+            Console.ReadLine();
         }
     }
 }

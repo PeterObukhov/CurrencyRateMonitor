@@ -4,6 +4,8 @@ services:
   currencyratemonitor:
     image: ${DOCKER_REGISTRY-}currencyratemonitor
     container_name: currencyratemonitor
+    environment:
+        - TZ=Europe/Moscow
     build:
       context: .
       dockerfile: CurrencyRateMonitor/Dockerfile
@@ -17,7 +19,5 @@ services:
       - POSTGRES_DB=currencyDb
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=123456
-    volumes:
-      - ./.containers/currencyratemonitor-db:/var/lib/postgresql/data
     ports:
       - 5432:5432
