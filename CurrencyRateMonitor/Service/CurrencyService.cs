@@ -1,13 +1,16 @@
 ﻿using CurrencyRateMonitor.Models;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 
 namespace CurrencyRateMonitor.Service
 {
-    public static class CurrencyService
+    public class CurrencyService
     {
         private const string baseUrl = "http://www.cbr.ru/scripts/";
-        private static HttpClient client { get; set; }
+        private static HttpClient client;
+        private static ILogger _logger;
 
         private struct CurrencyCode
         {
@@ -15,9 +18,10 @@ namespace CurrencyRateMonitor.Service
             public string Name;
         }
 
-        public static void InitializeService()
+        public static void InitializeService(ILogger logger)
         {
             client = new HttpClient();
+            _logger = logger;
         }
 
         public static async Task<IEnumerable<CurrencyRate>> GetCurrentRatesAsync()
@@ -40,11 +44,12 @@ namespace CurrencyRateMonitor.Service
                         VunitRate = decimal.Parse(item.Element("VunitRate").Value, CultureInfo.CreateSpecificCulture("ru-RU"))
                     });
                 }
+                _logger.LogInformation("Successfully retrieved current rates");
                 return currencyRates;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.LogError(ex.Message);
                 return currencyRates;
             }
         }
@@ -75,11 +80,12 @@ namespace CurrencyRateMonitor.Service
                         });
                     }
                 }
+                _logger.LogInformation("Successfully retrieved monthly rates");
                 return currencyRates;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.LogError(ex.Message);
                 return currencyRates;
             }
         }
@@ -99,11 +105,12 @@ namespace CurrencyRateMonitor.Service
                         Name = item.Element("Name").Value
                     });
                 }
+                _logger.LogInformation("Successfully retrieved currency codes");
                 return currencyCodes;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.LogError(ex.Message);
                 return currencyCodes;
             }
         }

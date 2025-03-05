@@ -2,23 +2,27 @@
 using Npgsql;
 using CurrencyRateMonitor.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace CurrencyRateMonitor.Handlers
 {
     public class DbHandler
     {
-        public static void ApplyMigration()
+        private static ILogger _logger;
+        public static void InitializeDB(ILogger logger)
         {
+            _logger = logger;
             try
             {
                 using (CurrencyDbContext db = new CurrencyDbContext())
                 {
                     db.Database.Migrate();
+                    logger.LogInformation("Successfully applied migration");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                logger.LogError(ex.Message);
             }
         }
         public static void SaveToDb(IEnumerable<CurrencyRate> currencyRates)
@@ -29,17 +33,18 @@ namespace CurrencyRateMonitor.Handlers
                 {
                     db.AddRange(currencyRates);
                     db.SaveChanges();
+                    _logger.LogInformation("Successfully saved data to db");
                 }
             }
             catch (Exception ex)
             {
                 if (ex.InnerException is PostgresException postgresEx && postgresEx.SqlState == "23505")
                 {
-                    Console.WriteLine("Записи с такой датой и ID валюты уже добавлены в базу");
+                    _logger.LogError("Записи с такой датой и ID валюты уже добавлены в базу");
                 }
                 else
                 {
-                    Console.WriteLine(ex.Message);
+                    _logger.LogError(ex.Message);
                 }
             }
         }

@@ -9,7 +9,7 @@ namespace CurrencyRateMonitor.Database
         public DbSet<CurrencyRate> CurrencyRates { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
+        { 
             var connectionString = $"Host={ConfigurationHandler.Сonfiguration.GetSection("Host").Value};" +
                 $"Port={ConfigurationHandler.Сonfiguration.GetSection("Port").Value};" +
                 $"Database={ConfigurationHandler.Сonfiguration.GetSection("Database").Value};" +
