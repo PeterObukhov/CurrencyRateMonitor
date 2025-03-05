@@ -4,8 +4,14 @@ using CurrencyRateMonitor.Handlers;
 
 namespace CurrencyRateMonitor.Scheduler
 {
+    /// <summary>
+    /// Класс расписания
+    /// </summary>
     internal class CurrencyScheduler
     {
+        /// <summary>
+        /// Метод для старта сохранения данных по расписанию
+        /// </summary>
         public static async void Start()
         {
             IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
@@ -25,18 +31,23 @@ namespace CurrencyRateMonitor.Scheduler
             await scheduler.ScheduleJob(job, trigger);
         }
 
+
+        /// <summary>
+        /// Метод для конвертации времени из конфига в нужный формат для Cron
+        /// </summary>
+        /// <returns>Строка в формате СС ММ ЧЧ </returns>
         private static string ReadTimeFromConfig()
         {
-            var time = ConfigurationHandler.Сonfiguration.GetSection("CronTime").Value.Split(":");
-            if (time.Length == 2)
+            var time = ConfigurationHandler.Сonfiguration.GetSection("CronTime").Value;
+            if (TimeOnly.TryParse(time, out var check))
             {
-                return $"0 {time[1]} {time[0]}";
+                return $"{check.Second} {check.Minute} {check.Hour}";
             }
-            else if (time.Length == 3)
+            else
             {
-                return $"{time[2]} {time[1]} {time[0]}";
+                Console.WriteLine("Неверный формат времени, выгрузка будет происходить ежедневно в 12:00");
+                return "0 0 12";
             }
-            else return "0 0 12";
         }
     }
 }

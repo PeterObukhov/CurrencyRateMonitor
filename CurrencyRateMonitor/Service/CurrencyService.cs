@@ -6,24 +6,38 @@ using System.Xml.Linq;
 
 namespace CurrencyRateMonitor.Service
 {
+    /// <summary>
+    /// Сервис для общения с API ЦБ
+    /// </summary>
     public class CurrencyService
     {
         private const string baseUrl = "http://www.cbr.ru/scripts/";
         private static HttpClient client;
         private static ILogger _logger;
 
+        /// <summary>
+        /// Код и название валюты
+        /// </summary>
         private struct CurrencyCode
         {
             public string Code;
             public string Name;
         }
 
+        /// <summary>
+        /// Инициализация сервиса
+        /// </summary>
+        /// <param name="logger">Логгер</param>
         public static void InitializeService(ILogger logger)
         {
             client = new HttpClient();
             _logger = logger;
         }
 
+        /// <summary>
+        /// Получить данные за текущий день
+        /// </summary>
+        /// <returns>Список значений курса валют</returns>
         public static async Task<IEnumerable<CurrencyRate>> GetCurrentRatesAsync()
         {
             List<CurrencyRate> currencyRates = new List<CurrencyRate>();
@@ -54,6 +68,10 @@ namespace CurrencyRateMonitor.Service
             }
         }
 
+        /// <summary>
+        /// Получить значения курса валют за последний месяц
+        /// </summary>
+        /// <returns>Список значений курса валют</returns>
         public static async Task<IEnumerable<CurrencyRate>> GetLastMonthRatesAsync()
         {
             var currentDate = DateTime.Now.Date;
@@ -90,6 +108,10 @@ namespace CurrencyRateMonitor.Service
             }
         }
 
+        /// <summary>
+        /// Получить коды валют
+        /// </summary>
+        /// <returns>Список кодов валют с их названиями</returns>
         private static async Task<IEnumerable<CurrencyCode>> GetCurrencyCodes()
         {
             List<CurrencyCode> currencyCodes = new List<CurrencyCode>();

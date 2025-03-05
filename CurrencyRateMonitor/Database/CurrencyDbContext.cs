@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CurrencyRateMonitor.Database
 {
+    /// <summary>
+    /// Контекст базы данных
+    /// </summary>
     public class CurrencyDbContext : DbContext
     {
         public DbSet<CurrencyRate> CurrencyRates { get; set; }

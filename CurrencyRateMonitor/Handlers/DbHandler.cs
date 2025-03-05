@@ -6,9 +6,17 @@ using Microsoft.Extensions.Logging;
 
 namespace CurrencyRateMonitor.Handlers
 {
+    /// <summary>
+    /// Класс для работы с БД
+    /// </summary>
     public class DbHandler
     {
         private static ILogger _logger;
+
+        /// <summary>
+        /// Миграция базы данных
+        /// </summary>
+        /// <param name="logger">Логгер для БД</param>
         public static void InitializeDB(ILogger logger)
         {
             _logger = logger;
@@ -25,6 +33,11 @@ namespace CurrencyRateMonitor.Handlers
                 logger.LogError(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Метод для сохранения списка курсов валют в БД
+        /// </summary>
+        /// <param name="currencyRates">Список курсов валют</param>
         public static void SaveToDb(IEnumerable<CurrencyRate> currencyRates)
         {
             try
