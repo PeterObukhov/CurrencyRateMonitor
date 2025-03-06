@@ -1,6 +1,8 @@
 # Сервис для выгрузки в БД данных о курсах валют от ЦБ РФ
 
 ### Запуск:
+docker compose down currencyratemonitor.db
+
 docker compose build currencyratemonitor
 
 docker compose run currencyratemonitor
