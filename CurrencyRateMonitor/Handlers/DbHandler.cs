@@ -90,6 +90,11 @@ namespace CurrencyRateMonitor.Handlers
             }
         }
 
+
+        /// <summary>
+        /// Получить дату последней записи в БД
+        /// </summary>
+        /// <returns>Дата последней записи</returns>
         public static DateOnly GetLastCurrencyRateDate()
         {
             try
@@ -114,6 +119,10 @@ namespace CurrencyRateMonitor.Handlers
             }
         }
 
+        /// <summary>
+        /// Получить коды валют из БД
+        /// </summary>
+        /// <returns>Список кодов</returns>
         public static List<string> GetCurrencyCodes()
         {
             try
