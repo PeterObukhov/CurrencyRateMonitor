@@ -4,5 +4,5 @@
   "Database": "currencyDb",
   "Username": "postgres",
   "Password": "123456",
-  "CronTime": "12:00"
+  "CronTime": "21:45"
 }

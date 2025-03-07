@@ -1,4 +1,5 @@
-﻿using CurrencyRateMonitor.Models;
+﻿using CurrencyRateMonitor.Handlers;
+using CurrencyRateMonitor.Models;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -15,14 +16,6 @@ namespace CurrencyRateMonitor.Service
         private static HttpClient client;
         private static ILogger _logger;
 
-        /// <summary>
-        /// Код и название валюты
-        /// </summary>
-        private struct CurrencyCode
-        {
-            public string Code;
-            public string Name;
-        }
 
         /// <summary>
         /// Инициализация сервиса
@@ -51,7 +44,6 @@ namespace CurrencyRateMonitor.Service
                     currencyRates.Add(new CurrencyRate
                     {
                         CurrencyId = item.Attribute("ID").Value,
-                        CurrencyName = item.Element("Name").Value,
                         Date = DateOnly.Parse(date),
                         Nominal = int.Parse(item.Element("Nominal").Value),
                         Value = decimal.Parse(item.Element("Value").Value, CultureInfo.CreateSpecificCulture("ru-RU")),
@@ -74,45 +66,59 @@ namespace CurrencyRateMonitor.Service
         /// <returns>Список значений курса валют</returns>
         public static async Task<IEnumerable<CurrencyRate>> GetLastMonthRatesAsync()
         {
-            var currentDate = DateTime.Now.Date;
-            var previousDate = currentDate.AddMonths(-1);
             List<CurrencyRate> currencyRates = new List<CurrencyRate>();
-            try
+            DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
+            DateOnly lastDateInDb = DbHandler.GetLastCurrencyRateDate();
+            if (lastDateInDb != currentDate)
             {
-                foreach (var code in await GetCurrencyCodes())
+                DateOnly previousDate;
+                if (lastDateInDb != DateOnly.MinValue)
                 {
-                    var previousDateStr = previousDate.ToString("dd.MM.yyyy");
-                    var currentDateStr = currentDate.ToString("dd.MM.yyyy");
-                    var response = await client.GetAsync($"{baseUrl}XML_dynamic.asp?date_req1={previousDateStr}&date_req2={currentDateStr}&VAL_NM_RQ={code.Code}");
-                    XDocument xDoc = XDocument.Load(response.Content.ReadAsStream());
-                    foreach (var item in xDoc.Element("ValCurs").Elements())
-                    {
-                        currencyRates.Add(new CurrencyRate
-                        {
-                            CurrencyId = code.Code,
-                            CurrencyName = code.Name,
-                            Date = DateOnly.Parse(item.Attribute("Date").Value, CultureInfo.CreateSpecificCulture("ru-RU")),
-                            Nominal = int.Parse(item.Element("Nominal").Value),
-                            Value = decimal.Parse(item.Element("Value").Value, CultureInfo.CreateSpecificCulture("ru-RU")),
-                            VunitRate = decimal.Parse(item.Element("VunitRate").Value, CultureInfo.CreateSpecificCulture("ru-RU"))
-                        });
-                    }
+                    previousDate = lastDateInDb;
                 }
-                _logger.LogInformation("Successfully retrieved monthly rates");
-                return currencyRates;
+                else
+                {
+                    previousDate = currentDate.AddMonths(-1);
+                }
+
+                try
+                {
+                    foreach (var code in DbHandler.GetCurrencyCodes())
+                    {
+                        var previousDateStr = previousDate.ToString("dd.MM.yyyy");
+                        var currentDateStr = currentDate.ToString("dd.MM.yyyy");
+                        var response = await client.GetAsync($"{baseUrl}XML_dynamic.asp?date_req1={previousDateStr}&date_req2={currentDateStr}&VAL_NM_RQ={code}");
+                        XDocument xDoc = XDocument.Load(response.Content.ReadAsStream());
+                        foreach (var item in xDoc.Element("ValCurs").Elements())
+                        {
+                            currencyRates.Add(new CurrencyRate
+                            {
+                                CurrencyId = code,
+                                Date = DateOnly.Parse(item.Attribute("Date").Value, CultureInfo.CreateSpecificCulture("ru-RU")),
+                                Nominal = int.Parse(item.Element("Nominal").Value),
+                                Value = decimal.Parse(item.Element("Value").Value, CultureInfo.CreateSpecificCulture("ru-RU")),
+                                VunitRate = decimal.Parse(item.Element("VunitRate").Value, CultureInfo.CreateSpecificCulture("ru-RU"))
+                            });
+                        }
+                    }
+                    _logger.LogInformation("Successfully retrieved monthly rates");
+                    return currencyRates;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return currencyRates;
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return currencyRates;
-            }
+
+            return currencyRates;
         }
 
         /// <summary>
         /// Получить коды валют
         /// </summary>
         /// <returns>Список кодов валют с их названиями</returns>
-        private static async Task<IEnumerable<CurrencyCode>> GetCurrencyCodes()
+        public static async Task<IEnumerable<CurrencyCode>> GetCurrencyCodes()
         {
             List<CurrencyCode> currencyCodes = new List<CurrencyCode>();
             try

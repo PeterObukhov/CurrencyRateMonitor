@@ -3,6 +3,7 @@ using System;
 using CurrencyRateMonitor.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CurrencyRateMonitor.Migrations
 {
     [DbContext(typeof(CurrencyDbContext))]
-    partial class CurrencyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250307175107_CurrencyCodesNullable")]
+    partial class CurrencyCodesNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,6 +50,9 @@ namespace CurrencyRateMonitor.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CurrencyCodeCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("CurrencyId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -65,6 +71,8 @@ namespace CurrencyRateMonitor.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CurrencyCodeCode");
+
                     b.HasIndex("CurrencyId", "Date")
                         .IsUnique();
 
@@ -73,13 +81,9 @@ namespace CurrencyRateMonitor.Migrations
 
             modelBuilder.Entity("CurrencyRateMonitor.Models.CurrencyRate", b =>
                 {
-                    b.HasOne("CurrencyRateMonitor.Models.CurrencyCode", "CurrencyCode")
+                    b.HasOne("CurrencyRateMonitor.Models.CurrencyCode", null)
                         .WithMany("Rates")
-                        .HasForeignKey("CurrencyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CurrencyCode");
+                        .HasForeignKey("CurrencyCodeCode");
                 });
 
             modelBuilder.Entity("CurrencyRateMonitor.Models.CurrencyCode", b =>

@@ -1,8 +1,11 @@
-﻿namespace CurrencyRateMonitor.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CurrencyRateMonitor.Models
 {
     /// <summary>
     /// Модель курса валюты
     /// </summary>
+    [Table("CurrencyRates")]
     public class CurrencyRate
     {
         public int Id { get; set; }
@@ -16,13 +19,8 @@
         /// Id валюты от ЦБ
         /// </summary>
         public string CurrencyId { get; set; }
-
-        /// <summary>
-        /// Название валюты на русском языке
-        /// </summary>
-        public string CurrencyName { get; set; }
-        
-        /// <summary>
+                
+        /// <summary> 
         /// Номинал валюты
         /// </summary>
         public int Nominal { get; set; }
@@ -36,5 +34,8 @@
         /// Знчение за одну единицу валюты
         /// </summary>
         public decimal VunitRate { get; set; }
+
+        [ForeignKey("CurrencyId")]
+        public CurrencyCode CurrencyCode { get; set; }
     }
 }

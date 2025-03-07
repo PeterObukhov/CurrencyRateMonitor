@@ -38,7 +38,7 @@ namespace CurrencyRateMonitor.Handlers
         /// Метод для сохранения списка курсов валют в БД
         /// </summary>
         /// <param name="currencyRates">Список курсов валют</param>
-        public static void SaveToDb(IEnumerable<CurrencyRate> currencyRates)
+        public static void SaveCurrencyRatesToDb(IEnumerable<CurrencyRate> currencyRates)
         {
             try
             {
@@ -53,12 +53,80 @@ namespace CurrencyRateMonitor.Handlers
             {
                 if (ex.InnerException is PostgresException postgresEx && postgresEx.SqlState == "23505")
                 {
-                    _logger.LogError("Записи с такой датой и ID валюты уже добавлены в базу");
+                    _logger.LogWarning("Записи с такой датой и ID валюты уже добавлены в базу");
                 }
                 else
                 {
                     _logger.LogError(ex.Message);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Метод для сохранения кодов валют в БД
+        /// </summary>
+        /// <param name="currencyRates">Список кодов валют</param>
+        public static void SaveCurrencyCodesToDb(IEnumerable<CurrencyCode> currencyCodes)
+        {
+            try
+            {
+                using (CurrencyDbContext db = new CurrencyDbContext())
+                {
+                    db.AddRange(currencyCodes);
+                    db.SaveChanges();
+                    _logger.LogInformation("Successfully saved data to db");
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException is PostgresException postgresEx && postgresEx.SqlState == "23505")
+                {
+                    _logger.LogWarning("Записи с таким ID валюты уже добавлены в базу");
+                }
+                else
+                {
+                    _logger.LogError("Ошибка сохранения данных в БД: " + ex.Message);
+                }
+            }
+        }
+
+        public static DateOnly GetLastCurrencyRateDate()
+        {
+            try
+            {
+                using (CurrencyDbContext db = new CurrencyDbContext())
+                {
+                    var dates = db.CurrencyRates.Select(x => x.Date);
+                    if (dates.Count() > 0)
+                    {
+                        return db.CurrencyRates.Select(x => x.Date).Max();
+                    }
+                    else
+                    {
+                        return DateOnly.MinValue;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Ошибка чтения даты из БД" + ex.Message);
+                return DateOnly.MinValue;
+            }
+        }
+
+        public static List<string> GetCurrencyCodes()
+        {
+            try
+            {
+                using (CurrencyDbContext db = new CurrencyDbContext())
+                {
+                    return db.CurrencyCodes.Select(x => x.Code).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Ошибка чтения кодов из БД" + ex.Message);
+                return null;
             }
         }
     }

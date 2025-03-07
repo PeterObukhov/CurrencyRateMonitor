@@ -16,8 +16,12 @@ namespace CurrencyRateMonitor.Scheduler
         /// <returns></returns>
         public async Task Execute(IJobExecutionContext context)
         {
-            var currencies = await CurrencyService.GetCurrentRatesAsync();
-            DbHandler.SaveToDb(currencies);
+            var lastDate = DbHandler.GetLastCurrencyRateDate();
+            if (lastDate != DateOnly.FromDateTime(DateTime.Now))
+            {
+                var currencies = await CurrencyService.GetCurrentRatesAsync();
+                DbHandler.SaveCurrencyRatesToDb(currencies);
+            }
         }
     }
 }

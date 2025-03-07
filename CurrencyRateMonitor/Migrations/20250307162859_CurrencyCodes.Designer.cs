@@ -3,6 +3,7 @@ using System;
 using CurrencyRateMonitor.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CurrencyRateMonitor.Migrations
 {
     [DbContext(typeof(CurrencyDbContext))]
-    partial class CurrencyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250307162859_CurrencyCodes")]
+    partial class CurrencyCodes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,19 +27,26 @@ namespace CurrencyRateMonitor.Migrations
 
             modelBuilder.Entity("CurrencyRateMonitor.Models.CurrencyCode", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Code")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Code");
+                    b.HasKey("Id");
 
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("CurrencyCodes");
+                    b.ToTable("CurrencyCode");
                 });
 
             modelBuilder.Entity("CurrencyRateMonitor.Models.CurrencyRate", b =>
@@ -46,6 +56,9 @@ namespace CurrencyRateMonitor.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CurrencyCodeId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("CurrencyId")
                         .IsRequired()
@@ -65,6 +78,8 @@ namespace CurrencyRateMonitor.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CurrencyCodeId");
+
                     b.HasIndex("CurrencyId", "Date")
                         .IsUnique();
 
@@ -73,18 +88,14 @@ namespace CurrencyRateMonitor.Migrations
 
             modelBuilder.Entity("CurrencyRateMonitor.Models.CurrencyRate", b =>
                 {
-                    b.HasOne("CurrencyRateMonitor.Models.CurrencyCode", "CurrencyCode")
-                        .WithMany("Rates")
-                        .HasForeignKey("CurrencyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CurrencyCode");
+                    b.HasOne("CurrencyRateMonitor.Models.CurrencyCode", null)
+                        .WithMany("CurrencyRates")
+                        .HasForeignKey("CurrencyCodeId");
                 });
 
             modelBuilder.Entity("CurrencyRateMonitor.Models.CurrencyCode", b =>
                 {
-                    b.Navigation("Rates");
+                    b.Navigation("CurrencyRates");
                 });
 #pragma warning restore 612, 618
         }

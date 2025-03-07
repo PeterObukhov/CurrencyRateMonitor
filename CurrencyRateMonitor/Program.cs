@@ -24,6 +24,7 @@ namespace CurrencyRateMonitor
 
             DbHandler.InitializeDB(dbLogger);
             CurrencyService.InitializeService(serviceLogger);
+            DbHandler.SaveCurrencyCodesToDb(await CurrencyService.GetCurrencyCodes());
 
             await Task.Run(CurrencyScheduler.Start);
             Console.WriteLine("Сервис фоновой выгрузки запущен и будет срабатывать каждый день в " + ConfigurationHandler.Сonfiguration.GetSection("CronTime").Value);
@@ -32,7 +33,7 @@ namespace CurrencyRateMonitor
             
             if (Console.ReadLine().ToLower() == "y")
             {
-                DbHandler.SaveToDb(await CurrencyService.GetLastMonthRatesAsync());
+                DbHandler.SaveCurrencyRatesToDb(await CurrencyService.GetLastMonthRatesAsync());
                 Console.WriteLine("Сохранение успешно");
             }
 

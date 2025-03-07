@@ -10,9 +10,10 @@ namespace CurrencyRateMonitor.Database
     public class CurrencyDbContext : DbContext
     {
         public DbSet<CurrencyRate> CurrencyRates { get; set; }
+        public DbSet<CurrencyCode> CurrencyCodes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        { 
+        {
             var connectionString = $"Host={ConfigurationHandler.Сonfiguration.GetSection("Host").Value};" +
                 $"Port={ConfigurationHandler.Сonfiguration.GetSection("Port").Value};" +
                 $"Database={ConfigurationHandler.Сonfiguration.GetSection("Database").Value};" +
@@ -25,6 +26,9 @@ namespace CurrencyRateMonitor.Database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CurrencyRate>().HasIndex(rate => new { rate.CurrencyId, rate.Date }).IsUnique();
+            modelBuilder.Entity<CurrencyCode>().HasIndex(code => code.Code).IsUnique();
+
+
         }
     }
 }
